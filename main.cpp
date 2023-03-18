@@ -43,7 +43,7 @@ int find_min_index_without_list(std::vector<int> row_of_distance_matrix, std::li
     auto min_element_from_uncoplate_list = std::min_element(row_of_distance_matrix_list.begin(), row_of_distance_matrix_list.end());
     
 
-    std::cout << "Najmniejszy element na liście to: " << *min_element_from_uncoplate_list << std::endl;
+    //std::cout << "Najmniejszy element na liście to: " << *min_element_from_uncoplate_list << std::endl;
 
     int szukany = *min_element_from_uncoplate_list;
     
@@ -51,57 +51,212 @@ int find_min_index_without_list(std::vector<int> row_of_distance_matrix, std::li
     
     if (it != row_of_distance_matrix.end()) {
         int indeks = std::distance(row_of_distance_matrix.begin(), it);
-        std::cout << "Element " << szukany << " znajduje się na indeksie " << indeks << std::endl;
+        //td::cout << "Element " << szukany << " znajduje się na indeksie " << indeks << std::endl;
         return indeks;
     }
 
     else {
-        std::cout << "Element " << szukany << " nie został znaleziony w wektorze." << std::endl;
+        //std::cout << "Element " << szukany << " nie został znaleziony w wektorze." << std::endl;
         return -1;
     }
 }
 
+int cycle_length(std::vector<std::vector<int>> distance_matrix, std::list<int> cycle){
+    int prev = -1;
+    int length = 0;
+    for(auto it = cycle.begin(); it != cycle.end(); ++it){
+        if(prev != -1){
+            length += distance_matrix[prev][*it];
+        }
+        prev = *it;
+    }
+    return length;
+}
+
 std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles(std::vector<std::vector<int>> distance_matrix){
     
-    std::list <int> first_cycle, secend_cycle;
+    std::list <int> first_cycle, second_cycle, banned;
 
     std::list<int> free_nodes(distance_matrix[0].size()) ; // vector with 100 ints.
     std::iota (std::begin(free_nodes), std::end(free_nodes), 0); // Fill with 0, 1, ..., 99.
 
     
     //starting first cycle from 0 node
-    int init_node_firs_cycle = 0;
-    free_nodes.remove(init_node_firs_cycle);
-    first_cycle.push_back(init_node_firs_cycle);
+    int init_node_first_cycle = 0;
+    free_nodes.remove(init_node_first_cycle);
+    first_cycle.push_back(init_node_first_cycle);
+    banned.push_back(init_node_first_cycle);
 
     //starting secend cycle from node most faraway from 0 node 
-    auto max_pos = std::max_element(distance_matrix[init_node_firs_cycle].begin(), distance_matrix[init_node_firs_cycle].end());
-    int init_node_secend_cycle = std::distance(distance_matrix[init_node_firs_cycle].begin(), max_pos);
-    free_nodes.remove(init_node_secend_cycle);
-    secend_cycle.push_back(init_node_secend_cycle);
-    
+    auto max_pos = std::max_element(distance_matrix[init_node_first_cycle].begin(), distance_matrix[init_node_first_cycle].end());
+    int init_node_second_cycle = std::distance(distance_matrix[init_node_first_cycle].begin(), max_pos);
+    free_nodes.remove(init_node_second_cycle);
+    second_cycle.push_back(init_node_second_cycle);
+    banned.push_back(init_node_second_cycle);
+
+    //create cycles with two elements
+    int next_index = find_min_index_without_list(distance_matrix[init_node_first_cycle], banned);
+    free_nodes.remove(next_index);
+    first_cycle.push_back(next_index);
+    banned.push_back(next_index);
+
+    next_index = find_min_index_without_list(distance_matrix[init_node_second_cycle], banned);
+    free_nodes.remove(next_index);
+    second_cycle.push_back(next_index);
+
+    int curr_length;
+    int place;
+    int best_length;
     int k=0;
-    while (first_cycle.size()+secend_cycle.size() < distance_matrix[0].size()){
-        if (k%2 == 0){//ferst cicle
-            std::map<int, int> index_min_candidate ; 
-
-            int ferst_element = first_cycle.front();
-            
-
-            for (auto it = std::next(first_cycle.begin()); it != std::prev(first_cycle.end()); ++it) {
-                std::cout << *it << " ";
+    int iterator = -1;
+    while (free_nodes.size() != 0){
+        next_index = -1;
+        best_length = -1;
+        if (k%2 == 0){//first cycle
+            for (auto it = first_cycle.begin(); it != first_cycle.end(); ++it) {
+                iterator += 1;
+                for (auto el = free_nodes.begin(); el != free_nodes.end(); ++el) {
+                    std::list<int> cycle = first_cycle;
+                    std::list<int>::iterator it_c = cycle.begin();
+                    std::advance(it_c, iterator);
+                    cycle.insert(it_c, *el);
+                    curr_length = cycle_length(distance_matrix, first_cycle);
+                    if(curr_length < best_length || best_length == -1){
+                        best_length = curr_length;
+                        next_index = *el;
+                        place = iterator;
+                    }
+                }
             }
+            iterator = -1;
+            free_nodes.remove(next_index);
+            std::list<int>::iterator it_c = first_cycle.begin();
+            std::advance(it_c, place);
+            first_cycle.insert(it_c, next_index);
 
             k++;
         }
-        else{//secend cicle 
+        else{//second cycle 
+            for (auto it = second_cycle.begin(); it != second_cycle.end(); ++it) {
+                iterator += 1;
+                for (auto el = free_nodes.begin(); el != free_nodes.end(); ++el) {
+                    std::list<int> cycle = second_cycle;
+                    std::list<int>::iterator it_c = cycle.begin();
+                    std::advance(it_c, iterator);
+                    cycle.insert(it_c, *el);
+                    curr_length = cycle_length(distance_matrix, cycle);
+                    if(curr_length < best_length || best_length == -1){
+                        best_length = curr_length;
+                        next_index = *el;
+                        place = iterator;
+                    }
+                }
+            }
+            iterator = -1;
+            free_nodes.remove(next_index);
+            std::list<int>::iterator it_c = second_cycle.begin();
+            std::advance(it_c, place);
+            second_cycle.insert(it_c, next_index);
+            k++;
+        }
+    }
+    first_cycle.push_back(*first_cycle.begin());
+    second_cycle.push_back(*second_cycle.begin());
+    return std::pair(first_cycle, second_cycle);
 
+}
 
+std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_greedy_cycle(std::vector<std::vector<int>> distance_matrix){
+    
+    std::list <int> first_cycle, second_cycle, banned;
+
+    std::list<int> free_nodes(distance_matrix[0].size()) ; // vector with 100 ints.
+    std::iota (std::begin(free_nodes), std::end(free_nodes), 0); // Fill with 0, 1, ..., 99.
+
+    
+    //starting first cycle from 0 node
+    int init_node_first_cycle = 0;
+    free_nodes.remove(init_node_first_cycle);
+    first_cycle.push_back(init_node_first_cycle);
+    banned.push_back(init_node_first_cycle);
+
+    //starting secend cycle from node most faraway from 0 node 
+    auto max_pos = std::max_element(distance_matrix[init_node_first_cycle].begin(), distance_matrix[init_node_first_cycle].end());
+    int init_node_second_cycle = std::distance(distance_matrix[init_node_first_cycle].begin(), max_pos);
+    free_nodes.remove(init_node_second_cycle);
+    second_cycle.push_back(init_node_second_cycle);
+    banned.push_back(init_node_second_cycle);
+
+    //create cycles with two elements
+    int next_index = find_min_index_without_list(distance_matrix[init_node_first_cycle], banned);
+    free_nodes.remove(next_index);
+    first_cycle.push_back(next_index);
+    banned.push_back(next_index);
+    first_cycle.push_back(init_node_first_cycle);
+
+    next_index = find_min_index_without_list(distance_matrix[init_node_second_cycle], banned);
+    free_nodes.remove(next_index);
+    second_cycle.push_back(next_index);
+    second_cycle.push_back(init_node_second_cycle);
+
+    int curr_length;
+    int place;
+    int best_length;
+    int k=0;
+    int iterator = 0;
+    while (free_nodes.size() != 0){
+        next_index = -1;
+        best_length = -1;
+        if (k%2 == 0){//first cycle
+            for (auto it = std::next(first_cycle.begin()); it != std::prev(first_cycle.end()); ++it) {
+                iterator += 1;
+                for (auto el = free_nodes.begin(); el != free_nodes.end(); ++el) {
+                    std::list<int> cycle = first_cycle;
+                    std::list<int>::iterator it_c = cycle.begin();
+                    std::advance(it_c, iterator);
+                    cycle.insert(it_c, *el);
+                    curr_length = cycle_length(distance_matrix, first_cycle);
+                    if(curr_length < best_length || best_length == -1){
+                        best_length = curr_length;
+                        next_index = *el;
+                        place = iterator;
+                    }
+                }
+            }
+            iterator = 0;
+            free_nodes.remove(next_index);
+            std::list<int>::iterator it_c = first_cycle.begin();
+            std::advance(it_c, place);
+            first_cycle.insert(it_c, next_index);
+
+            k++;
+        }
+        else{//second cycle 
+            for (auto it = std::next(second_cycle.begin()); it != std::prev(second_cycle.end()); ++it) {
+                iterator += 1;
+                for (auto el = free_nodes.begin(); el != free_nodes.end(); ++el) {
+                    std::list<int> cycle = second_cycle;
+                    std::list<int>::iterator it_c = cycle.begin();
+                    std::advance(it_c, iterator);
+                    cycle.insert(it_c, *el);
+                    curr_length = cycle_length(distance_matrix, cycle);
+                    if(curr_length < best_length || best_length == -1){
+                        best_length = curr_length;
+                        next_index = *el;
+                        place = iterator;
+                    }
+                }
+            }
+            iterator = 0;
+            free_nodes.remove(next_index);
+            std::list<int>::iterator it_c = second_cycle.begin();
+            std::advance(it_c, place);
+            second_cycle.insert(it_c, next_index);
             k++;
         }
     }
 
-    return std::pair(first_cycle, secend_cycle);
+    return std::pair(first_cycle, second_cycle);
 
 }
 
@@ -109,27 +264,33 @@ int main(){
 
     std::vector<Node> nodes_corrdinats = read_data("example.txt");
     
-    for (auto i: nodes_corrdinats){
+    /*for (auto i: nodes_corrdinats){
         std::cout << i.id <<" "<< i.x <<" "<< i.y << std::endl;
     }
 
-    std::cout << count_euclidean_distance(nodes_corrdinats[0], nodes_corrdinats[0]) << std::endl; 
+    std::cout << count_euclidean_distance(nodes_corrdinats[0], nodes_corrdinats[0]) << std::endl; */
 
     std::vector<std::vector<int>> distance_matrix = create_distance_matrix(nodes_corrdinats);
 
-    for (auto i: distance_matrix){
+    /*for (auto i: distance_matrix){
         for (auto j: i){
             std::cout << j << " ";
         }
         std::cout<< std::endl;
-    }
+    }*/
+    std::pair<std::list<int>, std::list<int>> ca = create_two_tsp_cycles_greedy_cycle(distance_matrix);
+    std::cout<<"length1 : "<<cycle_length(distance_matrix, ca.first) <<" length2 : "<<cycle_length(distance_matrix, ca.second)<<"\n"; 
 
-    // create_two_tsp_cycles(distance_matrix);
-
+    std::pair<std::list<int>, std::list<int>> c = create_two_tsp_cycles(distance_matrix);
+    std::cout<<"length1 : "<<cycle_length(distance_matrix, c.first) <<" length2 : "<<cycle_length(distance_matrix, c.second)<<"\n"; 
+    
+    //create_two_tsp_cycles(distance_matrix);
+    /*
+    std::cout << "Testing: " <<cycle_length(distance_matrix, {0, 1, 2, 0}) << "\n";
     std::cout << find_min_index_without_list({4,0,1,8,3}, {1,3}) << std::endl;
     std::cout << find_min_index_without_list({4,0,1,8,3}, {}) << std::endl;
     std::cout << find_min_index_without_list({}, {}) << std::endl;
-
+    */
 
     return 0;
 }
