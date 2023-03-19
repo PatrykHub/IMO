@@ -31,7 +31,6 @@ std::vector<std::vector<int>> create_distance_matrix(std::vector<Node> nodes_cor
 
 int find_min_index_without_list(std::vector<int> row_of_distance_matrix, std::list<int> indexies_without){
 
-
     std::list<int> row_of_distance_matrix_list(row_of_distance_matrix.begin(), row_of_distance_matrix.end());
     
     for (int to_remove: indexies_without){
