@@ -13,6 +13,16 @@ int count_euclidean_distance(Node node_1, Node node_2){
     return round(sqrt(pow(node_1.x - node_2.x, 2) + pow(node_1.y - node_2.y, 2)));
 }
 
+void save_data(std::vector<Node> nodes_corrdinats, std::list<int> cycle, std::string file_name){
+    std::fstream file;
+    file.open(file_name, std::ios::out);
+    int prev = -1;
+    for (auto it = cycle.begin(); it != cycle.end(); ++it){
+        file << nodes_corrdinats[*it].x<<" "<<nodes_corrdinats[*it].y<<"\n";
+    }
+    return;
+}
+
 std::vector<std::vector<int>> create_distance_matrix(std::vector<Node> nodes_corrdinats){
     
     std::vector<std::vector<int>> distance_matrix ; // TODO wielkość 
@@ -95,15 +105,7 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles(std::vector<std:
     banned.push_back(init_node_second_cycle);
 
     //create cycles with two elements
-    int next_index = find_min_index_without_list(distance_matrix[init_node_first_cycle], banned);
-    free_nodes.remove(next_index);
-    first_cycle.push_back(next_index);
-    banned.push_back(next_index);
-
-    next_index = find_min_index_without_list(distance_matrix[init_node_second_cycle], banned);
-    free_nodes.remove(next_index);
-    second_cycle.push_back(next_index);
-
+    int next_index;
     int curr_length;
     int place;
     int best_length;
@@ -120,7 +122,7 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles(std::vector<std:
                     std::list<int>::iterator it_c = cycle.begin();
                     std::advance(it_c, iterator);
                     cycle.insert(it_c, *el);
-                    curr_length = cycle_length(distance_matrix, first_cycle);
+                    curr_length = cycle_length(distance_matrix, cycle);
                     if(curr_length < best_length || best_length == -1){
                         best_length = curr_length;
                         next_index = *el;
@@ -188,15 +190,8 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_greedy_cycle(std
     banned.push_back(init_node_second_cycle);
 
     //create cycles with two elements
-    int next_index = find_min_index_without_list(distance_matrix[init_node_first_cycle], banned);
-    free_nodes.remove(next_index);
-    first_cycle.push_back(next_index);
-    banned.push_back(next_index);
+    int next_index;
     first_cycle.push_back(init_node_first_cycle);
-
-    next_index = find_min_index_without_list(distance_matrix[init_node_second_cycle], banned);
-    free_nodes.remove(next_index);
-    second_cycle.push_back(next_index);
     second_cycle.push_back(init_node_second_cycle);
 
     int curr_length;
@@ -208,14 +203,14 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_greedy_cycle(std
         next_index = -1;
         best_length = -1;
         if (k%2 == 0){//first cycle
-            for (auto it = std::next(first_cycle.begin()); it != std::prev(first_cycle.end()); ++it) {
+            for (auto it = std::next(first_cycle.begin()); it != first_cycle.end(); ++it) {
                 iterator += 1;
                 for (auto el = free_nodes.begin(); el != free_nodes.end(); ++el) {
                     std::list<int> cycle = first_cycle;
                     std::list<int>::iterator it_c = cycle.begin();
                     std::advance(it_c, iterator);
                     cycle.insert(it_c, *el);
-                    curr_length = cycle_length(distance_matrix, first_cycle);
+                    curr_length = cycle_length(distance_matrix, cycle);
                     if(curr_length < best_length || best_length == -1){
                         best_length = curr_length;
                         next_index = *el;
@@ -232,7 +227,7 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_greedy_cycle(std
             k++;
         }
         else{//second cycle 
-            for (auto it = std::next(second_cycle.begin()); it != std::prev(second_cycle.end()); ++it) {
+            for (auto it = std::next(second_cycle.begin()); it != second_cycle.end(); ++it) {
                 iterator += 1;
                 for (auto el = free_nodes.begin(); el != free_nodes.end(); ++el) {
                     std::list<int> cycle = second_cycle;
@@ -262,7 +257,7 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_greedy_cycle(std
 
 int main(){
 
-    std::vector<Node> nodes_corrdinats = read_data("example.txt");
+    std::vector<Node> nodes_corrdinats = read_data("kroA100.tsp");
     
     /*for (auto i: nodes_corrdinats){
         std::cout << i.id <<" "<< i.x <<" "<< i.y << std::endl;
@@ -280,10 +275,14 @@ int main(){
     }*/
     std::pair<std::list<int>, std::list<int>> ca = create_two_tsp_cycles_greedy_cycle(distance_matrix);
     std::cout<<"length1 : "<<cycle_length(distance_matrix, ca.first) <<" length2 : "<<cycle_length(distance_matrix, ca.second)<<"\n"; 
+    save_data(nodes_corrdinats, ca.first, "cycle1a.txt");
+    save_data(nodes_corrdinats, ca.second, "cycle2a.txt");
+
 
     std::pair<std::list<int>, std::list<int>> c = create_two_tsp_cycles(distance_matrix);
     std::cout<<"length1 : "<<cycle_length(distance_matrix, c.first) <<" length2 : "<<cycle_length(distance_matrix, c.second)<<"\n"; 
-    
+    save_data(nodes_corrdinats, c.first, "greedy1a.txt");
+    save_data(nodes_corrdinats, c.second, "greedy2a.txt");
     //create_two_tsp_cycles(distance_matrix);
     /*
     std::cout << "Testing: " <<cycle_length(distance_matrix, {0, 1, 2, 0}) << "\n";
