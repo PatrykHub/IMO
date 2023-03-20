@@ -257,7 +257,7 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_greedy_cycle(std
 
 int main(){
 
-    std::vector<Node> nodes_corrdinats = read_data("kroA100.tsp");
+    std::vector<Node> nodes_corrdinats = read_data("kroB100.tsp");
     
     /*for (auto i: nodes_corrdinats){
         std::cout << i.id <<" "<< i.x <<" "<< i.y << std::endl;
@@ -275,14 +275,14 @@ int main(){
     }*/
     std::pair<std::list<int>, std::list<int>> ca = create_two_tsp_cycles_greedy_cycle(distance_matrix);
     std::cout<<"length1 : "<<cycle_length(distance_matrix, ca.first) <<" length2 : "<<cycle_length(distance_matrix, ca.second)<<"\n"; 
-    save_data(nodes_corrdinats, ca.first, "cycle1a.txt");
-    save_data(nodes_corrdinats, ca.second, "cycle2a.txt");
+    save_data(nodes_corrdinats, ca.first, "cycle1b.txt");
+    save_data(nodes_corrdinats, ca.second, "cycle2b.txt");
 
 
     std::pair<std::list<int>, std::list<int>> c = create_two_tsp_cycles(distance_matrix);
     std::cout<<"length1 : "<<cycle_length(distance_matrix, c.first) <<" length2 : "<<cycle_length(distance_matrix, c.second)<<"\n"; 
-    save_data(nodes_corrdinats, c.first, "greedy1a.txt");
-    save_data(nodes_corrdinats, c.second, "greedy2a.txt");
+    save_data(nodes_corrdinats, c.first, "greedy1b.txt");
+    save_data(nodes_corrdinats, c.second, "greedy2b.txt");
     //create_two_tsp_cycles(distance_matrix);
     /*
     std::cout << "Testing: " <<cycle_length(distance_matrix, {0, 1, 2, 0}) << "\n";
