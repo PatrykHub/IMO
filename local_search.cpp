@@ -20,3 +20,23 @@ std::list<int> edge_replacment(std::vector<int> path, int random_start, int rand
 
     return path_with_replec_edge;
 }
+
+
+int cycle_length(std::vector<std::vector<int>> distance_matrix, std::list<int> cycle){
+    int prev = -1;
+    int length = 0;
+    for(auto it = cycle.begin(); it != cycle.end(); ++it){
+        if(prev != -1){
+            length += distance_matrix[prev][*it];
+        }
+        prev = *it;
+    }
+    return length;
+}
+
+int count_delta_function(std::vector<std::vector<int>> distance_matrix, std::vector<int> old_path, std::vector<int> new_path){
+   std::list old_path_l = std::list(old_path.begin(), old_path.end());
+   std::list new_path_l = std::list(new_path.begin(), new_path.end());
+
+   return cycle_length(distance_matrix, new_path_l) -  cycle_length(distance_matrix, old_path_l);
+}

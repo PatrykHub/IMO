@@ -37,5 +37,14 @@ int main(){
     std::list<int> correct_3 = {1,2,3,4,5,6,7,9,8};
     assert(std::equal(replec_edge_3.begin(), replec_edge_3.end(), correct_3.begin()));
 
+    //count_delta_function testy 
+    // liczy dla ścieżki nie dla cyklu, co jest błędne 
+
+    // minimalizujemy
+    //dla lepszej starej zwróci l.dodatnią
+    // a dla lepszej nowej ujemną 
+    int wynik =  count_delta_function({{0,3,1,6},{3,0,5,2},{1,5,0,4},{6,2,4,0}}, {0,1,2,3}, {0,3,2,1});
+    std::cout << wynik << std::endl;
+
     return 0;
 }
