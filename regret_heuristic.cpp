@@ -22,7 +22,7 @@ int find_min_index_with_included_indexes(std::vector<int> vec, std::list<int> in
 }
 
 
-std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_regret_heurystic(std::vector<std::vector<int>> distance_matrix){ 
+std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_regret_heurystic(std::vector<std::vector<int>> distance_matrix, int starting_index){ 
     
 
     std::list <int> first_cycle, second_cycle, banned;
@@ -30,7 +30,7 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_regret_heurystic
     
     std::iota(free_nodes.begin(), free_nodes.end(), 0);
 
-    int init_node_ferst_cycle = 0; // you cen make it random 
+    int init_node_ferst_cycle = starting_index; // you cen make it random 
     free_nodes.remove(init_node_ferst_cycle);
     first_cycle.push_back(init_node_ferst_cycle);
     int secend_node_ferst_cycle = find_min_index_with_included_indexes(distance_matrix[init_node_ferst_cycle], free_nodes);
