@@ -12,6 +12,7 @@
 #include "read_data.cpp"
 #include "regret_heuristic.cpp"
 #include "local_search.cpp"
+
 std::vector<int> vertex_replacment(std::vector<int> path, int random_start, int random_to){ // random statment are not lots to easy testing
     std::swap(path[random_start], path[random_to]);
     return path;
@@ -22,7 +23,9 @@ std::vector<int> greedy_local_search_vertex(std::vector<int> staring_path, std::
     std::vector<int> best_path = staring_path;
     auto rd = std::random_device {}; 
     auto rng = std::default_random_engine { rd() };
-    while (true){
+    int counter = 0;
+    while (counter < 10000){
+        counter ++;
         int random_start = rand() % (staring_path.size() - 2) + 1;
         int random_to;
         do{
@@ -50,7 +53,8 @@ std::vector<int> best_from_all_vertex(std::vector<int> staring_path, std::vector
         for (int random_to = random_start + 1; random_to<staring_path.size();random_to++){
             // int random_start = rand() % staring_path.size();
             // int random_to = rand()%(staring_path.size()-random_start + 1) + random_start;
-            std::vector<int> propose_path = vertex_replacment(best_path, random_start-1, random_to-1);
+            if(random_start == random_to) continue;;
+            std::vector<int> propose_path = vertex_replacment(best_path, random_start, random_to);
             if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
                 best_path = propose_path;
             }
