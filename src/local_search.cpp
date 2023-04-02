@@ -51,8 +51,6 @@ std::vector<int> greedy_local_search(std::vector<int> staring_path, std::vector<
     std::vector<int> best_path = staring_path;
 
     while (true){
-    // for random start od 0 do długosci 
-    //     for random to od random start+1 do dlugosci 
         int random_start = rand() % staring_path.size();
         int random_to = rand()%(staring_path.size()-random_start + 1) + random_start;
         std::vector<int> propose_path = edge_replacment(best_path, random_start-1, random_to-1);
@@ -69,18 +67,37 @@ std::pair<std::vector<int>, std::vector<int>> greedy_local_search_for_pair(std::
 }
 
 
-std::vector<int>steepest_local_search(std::vector<int> staring_path, std::vector<std::vector<int>> distance_matrix){
+std::vector<int> best_from_all(std::vector<int> staring_path, std::vector<std::vector<int>> distance_matrix){
 
     std::vector<int> best_path = staring_path;
-    int i = 500; // do puki jest poprawa, dla każdeg owierzchołka licze delte i wybieram najelpepsze i aplikuje jeśli delta jest dodatnia a jak nie to stopuje o koniec 
-    while (i>0){
-        i--;
-        std::vector<int> propose_path = greedy_local_search(staring_path, distance_matrix);
-        if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
-            best_path = propose_path;
+
+    for (int random_start = 0;random_start<staring_path.size();random_start++){
+        for (int random_to = random_start + 1; random_to<staring_path.size();random_to++){
+            // int random_start = rand() % staring_path.size();
+            // int random_to = rand()%(staring_path.size()-random_start + 1) + random_start;
+            std::vector<int> propose_path = edge_replacment(best_path, random_start-1, random_to-1);
+            if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
+                best_path = propose_path;
+            }
         }
     }
     return best_path;
+
+}
+
+std::vector<int>steepest_local_search(std::vector<int> staring_path, std::vector<std::vector<int>> distance_matrix){
+
+    std::vector<int> best_path = staring_path;
+    // do puki jest poprawa, dla każdeg owierzchołka licze delte i wybieram najelpepsze i aplikuje jeśli delta jest dodatnia a jak nie to stopuje o koniec 
+    while (true){
+        std::vector<int> propose_path = best_from_all(staring_path, distance_matrix);
+        if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
+            best_path = propose_path;
+        }
+        else{
+            return best_path;
+        }
+    }
 }
 
 
