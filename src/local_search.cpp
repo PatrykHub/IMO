@@ -153,10 +153,10 @@ std::pair<std::vector<int>, std::vector<int>> steepest_local_search_for_pair(std
 
 }
 
-std::pair<std::vector<int>, std::vector<int>> generate_random_cycles(std::vector<std::vector<int>> distance_matrix){
+std::pair<std::list<int>, std::list<int>> generate_random_cycles(std::vector<std::vector<int>> distance_matrix){
 
-    std::vector<int> first_cycle(int(distance_matrix[0].size()/2));
-    std::vector<int> secend_cycle(distance_matrix[0].size() - int(distance_matrix[0].size()/2));
+    std::list<int> first_cycle(int(distance_matrix[0].size()/2));
+    std::list<int> secend_cycle(distance_matrix[0].size() - int(distance_matrix[0].size()/2));
     srand(time(NULL));
 
     int n = distance_matrix.size();
