@@ -49,14 +49,34 @@ int count_delta_function(std::vector<std::vector<int>> distance_matrix, std::vec
 }
 
 
+
+std::vector<int> vertex_replacment(std::vector<int> path, int random_start, int random_to){ // random statment are not lots to easy testing
+    std::swap(path[random_start], path[random_to]);
+    return path;
+}
+
 std::vector<int> greedy_local_search(std::vector<int> staring_path, std::vector<std::vector<int>> distance_matrix){
 
     std::vector<int> best_path = staring_path;
 
+    int i = 0;
     while (true){
-        int random_start = rand() % staring_path.size();
-        int random_to = rand()%(staring_path.size()-random_start + 1) + random_start;
-        std::vector<int> propose_path = edge_replacment(best_path, random_start-1, random_to-1);
+        i++;
+        std::vector<int> propose_path;
+        if (i%2 == 0 ){
+            int random_start = rand() % staring_path.size();
+            int random_to = rand()%(staring_path.size()-random_start + 1) + random_start;
+            propose_path = edge_replacment(best_path, random_start-1, random_to-1);
+        }
+        else{
+            int random_start = rand() % (staring_path.size() - 2) + 1;
+            int random_to;
+             do{
+                random_to = rand() % (staring_path.size() - 2) + 1;
+            } while(random_start != random_to); 
+
+            propose_path = vertex_replacment(best_path, random_start, random_to);
+        }
         if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
             return propose_path;
         }
@@ -76,8 +96,6 @@ std::vector<int> best_from_all(std::vector<int> staring_path, std::vector<std::v
 
     for (int random_start = 0;random_start<staring_path.size();random_start++){
         for (int random_to = random_start + 1; random_to<staring_path.size();random_to++){
-            // int random_start = rand() % staring_path.size();
-            // int random_to = rand()%(staring_path.size()-random_start + 1) + random_start;
             std::vector<int> propose_path = edge_replacment(best_path, random_start-1, random_to-1);
             if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
                 best_path = propose_path;
@@ -88,12 +106,37 @@ std::vector<int> best_from_all(std::vector<int> staring_path, std::vector<std::v
 
 }
 
+std::vector<int> best_from_all_vertex(std::vector<int> staring_path, std::vector<std::vector<int>> distance_matrix){
+
+    std::vector<int> best_path = staring_path;
+
+    for (int random_start = 0;random_start<staring_path.size();random_start++){
+        for (int random_to = 0; random_to<staring_path.size();random_to++){
+            if (random_start!=random_to){
+                std::vector<int> propose_path = vertex_replacment(best_path, random_start, random_to);
+                if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
+                    best_path = propose_path;
+                }
+            }
+        }
+    }
+    return best_path;
+
+}
 std::vector<int>steepest_local_search(std::vector<int> staring_path, std::vector<std::vector<int>> distance_matrix){
 
     std::vector<int> best_path = staring_path;
     // do puki jest poprawa, dla każdeg owierzchołka licze delte i wybieram najelpepsze i aplikuje jeśli delta jest dodatnia a jak nie to stopuje o koniec 
+    int i = 0;
+    std::vector <int> propose_path;
     while (true){
-        std::vector<int> propose_path = best_from_all(staring_path, distance_matrix);
+        i++;
+        if(i%2==0){
+            propose_path = best_from_all(staring_path, distance_matrix);
+        }
+        else{
+            propose_path = best_from_all_vertex(staring_path, distance_matrix);
+        }
         if (count_delta_function(distance_matrix, best_path, propose_path) < 0){
             best_path = propose_path;
         }
@@ -101,6 +144,7 @@ std::vector<int>steepest_local_search(std::vector<int> staring_path, std::vector
             return best_path;
         }
     }
+    return best_path;
 }
 
 
