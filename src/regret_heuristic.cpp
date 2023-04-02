@@ -89,7 +89,7 @@ std::pair<std::list<int>, std::list<int>> create_two_tsp_cycles_regret_heurystic
 
         }
         else{
-                        std::list<int>::iterator v1, v2;
+            std::list<int>::iterator v1, v2;
             int v_new;
             float cost;
             float best_cost;

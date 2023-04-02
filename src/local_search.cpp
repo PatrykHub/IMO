@@ -5,6 +5,9 @@
 #include <map>
 #include <random>
 #include <utility>
+#include <cstdlib>
+#include <ctime>
+
 #include "../includes/local_search.h"
 
 std::vector<int> edge_replacment(std::vector<int> path, int random_start, int random_to){ // random statment are not lots to easy testing
@@ -103,5 +106,35 @@ std::vector<int>steepest_local_search(std::vector<int> staring_path, std::vector
 
 std::pair<std::vector<int>, std::vector<int>> steepest_local_search_for_pair(std::pair<std::list<int>, std::list<int>> staring_paths, std::vector<std::vector<int>> distance_matrix){
     return std::pair(steepest_local_search(std::vector(staring_paths.first.begin(), staring_paths.first.end()), distance_matrix), steepest_local_search(std::vector(staring_paths.second.begin(), staring_paths.second.end()), distance_matrix));
+
+}
+
+std::pair<std::vector<int>, std::vector<int>> generate_random_cycles(std::vector<std::vector<int>> distance_matrix){
+
+    std::vector<int> first_cycle(int(distance_matrix[0].size()/2));
+    std::vector<int> secend_cycle(distance_matrix[0].size() - int(distance_matrix[0].size()/2));
+    srand(time(NULL));
+
+    int n = distance_matrix.size();
+    // lista wierzchołków do wyboru
+    std::list<int> vertices(n);
+    for (int i = 0; i < n; i++) {
+        vertices.push_back(i);
+    }
+
+    int i = 0;
+    while (!vertices.empty()){
+        i++;
+        auto it = vertices.begin();
+        advance(it, rand() % distance(vertices.begin(), vertices.end())); // losowe przesunięcie iteratora
+        vertices.erase(it); 
+        if (i%2==0){
+            first_cycle.push_back(*it);
+        }
+        else{
+            secend_cycle.push_back(*it);
+        }
+    }
+    return std::pair(first_cycle, secend_cycle);
 
 }

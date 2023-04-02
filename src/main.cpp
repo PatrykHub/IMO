@@ -33,11 +33,16 @@ int main(){
     assert(wynik == 0);
 
 
+
     std::vector<Node> nodes_corrdinats = read_data("../kroA100.tsp");
     std::vector<std::vector<int>> distance_matrix = create_distance_matrix(nodes_corrdinats);
     std::pair cycles = create_two_tsp_cycles_regret_heurystic(distance_matrix, 0);
     std::cout<<"regret heuristic: length1 : "<<cycle_length(distance_matrix, cycles.first) <<" length2 : "<<cycle_length(distance_matrix, cycles.second)<<"\n"; 
-    
+
+    std::pair<std::vector<int>, std::vector<int>> random_cycles =  generate_random_cycles(distance_matrix);
+    std::cout<<"random_cycles: length1 : "<<cycle_length(distance_matrix, std::list(random_cycles.first.begin(), random_cycles.first.end())) <<" length2 : "<<cycle_length(distance_matrix, std::list(random_cycles.second.begin(), random_cycles.second.end()))<<"\n"; 
+
+
     std::pair<std::vector<int>, std::vector<int>> greedy_paths = greedy_local_search_for_pair(cycles, distance_matrix);
     std::cout<<"greedy local search: length1 : "<<cycle_length(distance_matrix, std::list(greedy_paths.first.begin(), greedy_paths.first.end())) <<" length2 : "<<cycle_length(distance_matrix, std::list(greedy_paths.second.begin(), greedy_paths.second.end()))<<"\n"; 
 
