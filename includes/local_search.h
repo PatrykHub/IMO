@@ -3,7 +3,7 @@
 #include <list>
 // #include "read_data.h"
 
-std::vector<int> edge_replacment(std::vector<int> path, int random_start, int random_to);
+std::vector<int> vertex_replacment(std::vector<int> path, int random_start, int random_to);
 
 int cycle_length(std::vector<std::vector<int>> distance_matrix, std::list<int> cycle);
 
