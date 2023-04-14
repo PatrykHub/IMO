@@ -31,7 +31,7 @@ def create_greedy_cycles(distance_matrix: np.ndarray):
     first_cycle = np.array([0, 0])
     random_vertex = random.randint(1, distance_matrix.shape[0] - 1)
     second_cycle = np.array([random_vertex, random_vertex])
-    free_vertices = np.arange(1, distance_matrix.shape[0] - 1, dtype=int)
+    free_vertices = np.arange(1, distance_matrix.shape[0], dtype=int)
     free_vertices = np.delete(free_vertices, np.where(free_vertices == random_vertex))
     first = True
     while np.any(free_vertices):
