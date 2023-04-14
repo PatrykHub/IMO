@@ -32,6 +32,65 @@ def switch_edges(cycle: np.ndarray, first_vertex: int, second_vertex: int):
     )
 
 
+def calculate_swap_of_edges_cost(
+    first_edge_beginning: int,
+    first_edge_end: int,
+    second_edge_beginning: int,
+    second_edge_end: int,
+    distance_matrix: np.ndarray,
+):
+    return (
+        distance_matrix[first_edge_beginning, second_edge_beginning]
+        + distance_matrix[first_edge_end, second_edge_end]
+        - distance_matrix[first_edge_beginning, first_edge_end]
+        - distance_matrix[second_edge_beginning, second_edge_end]
+    )
+
+
+def create_edges_cost_matrix(
+    first_cycle: np.ndarray, second_cycle: np.ndarray, distance_matrix: np.ndarray
+):
+    edges_cost = np.ones_like(distance_matrix)
+    for x in range(first_cycle.shape[0] - 2):
+        for y in range(x + 1, first_cycle.shape[0] - 1):
+            if first_cycle[y] < first_cycle[x]:
+                edges_cost[first_cycle[y], first_cycle[x]] = calculate_swap_of_edges_cost(
+                    first_cycle[y],
+                    first_cycle[y + 1],
+                    first_cycle[x],
+                    first_cycle[x + 1],
+                    distance_matrix,
+                )
+            else:
+                edges_cost[first_cycle[x], first_cycle[y]] = calculate_swap_of_edges_cost(
+                    first_cycle[y],
+                    first_cycle[y + 1],
+                    first_cycle[x],
+                    first_cycle[x + 1],
+                    distance_matrix,
+                )
+
+    for y in range(second_cycle.shape[0] - 2):
+        for x in range(x + 1, second_cycle.shape[0] - 1):
+            if second_cycle[y] < second_cycle[x]:
+                edges_cost[second_cycle[y], second_cycle[x]] = calculate_swap_of_edges_cost(
+                    second_cycle[y],
+                    second_cycle[y + 1],
+                    second_cycle[x],
+                    second_cycle[x + 1],
+                    distance_matrix,
+                )
+            else:
+                edges_cost[second_cycle[x], second_cycle[y]] = calculate_swap_of_edges_cost(
+                    second_cycle[y],
+                    second_cycle[y + 1],
+                    second_cycle[x],
+                    second_cycle[x + 1],
+                    distance_matrix,
+                )
+    return edges_cost
+
+
 def calculate_swap_of_verticec_cost(
     first_cycle: np.ndarray,
     second_cycle: np.ndarray,
@@ -105,7 +164,7 @@ def steepest_vertices(
     first_cycle: np.ndarray,
     second_cycle: np.ndarray,
     vertices_cost: np.ndarray,
-    distance_matrix,
+    distance_matrix: np.ndarray,
 ):
     while True:
         indices = divmod(vertices_cost.argmin(), vertices_cost.shape[1])
@@ -151,12 +210,71 @@ def steepest_vertices(
     return first, second
 
 
+def steepest_edges(
+    first_cycle: np.ndarray,
+    second_cycle: np.ndarray,
+    vertices_cost: np.ndarray,
+    edges_cost: np.ndarray,
+    distance_matrix: np.ndarray,
+):
+    while True:
+        indices_vertices = divmod(vertices_cost.argmin(), vertices_cost.shape[1])
+        indices_edges = divmod(vertices_cost.argmin(), vertices_cost.shape[1])
+        if vertices_cost[indices_vertices[0], indices_vertices[1]] >= 0 and edges_cost[indices_edges[0], indices_edges[1]] >= 0:
+            break
+        elif vertices_cost[indices_vertices[0], indices_vertices[1]] < edges_cost[indices_edges[0], indices_edges[1]]:
+            if indices_vertices[0] in first_cycle:
+                first_cycle, second_cycle = switch_vertices(
+                    first_cycle, second_cycle, indices_vertices[0], indices_vertices[1]
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[0],
+                    second_cycle,
+                    first_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[1],
+                    first_cycle,
+                    second_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+            else:
+                first_cycle, second_cycle = switch_vertices(
+                    first_cycle, second_cycle, indices_vertices[1], indices_vertices[0]
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[1],
+                    second_cycle,
+                    first_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[0],
+                    first_cycle,
+                    second_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+        else:
+            if indices_edges[0] in first_cycle:
+                first_cycle = switch_edges(first_cycle, indices_edges[0], indices_edges[1])
+            elif indices_edges[0] in second_cycle:
+                second_cycle = switch_edges(second_cycle, indices_edges[0], indices_edges[1])
+        edges_cost = create_edges_cost_matrix(first_cycle, second_cycle, distance_matrix)
+    return first, second
+
+
 graph = load_file("kroA100.tsp")
 distance_matrix = create_distance_matrix(graph)
 first, second = create_greedy_cycles(distance_matrix)
 print(first, second)
+edges_cost =  create_edges_cost_matrix(first, second, distance_matrix)
 vertices_cost = create_vertices_cost_matrix(first, second, distance_matrix)
 print(check_length(first, distance_matrix), check_length(second, distance_matrix))
-first, second = steepest_vertices(first, second, vertices_cost, distance_matrix)
+first, second = steepest_edges(first, second, vertices_cost, edges_cost, distance_matrix)
 print(check_length(first, distance_matrix), check_length(second, distance_matrix))
 plot(first, second, graph)
