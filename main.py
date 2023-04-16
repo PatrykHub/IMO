@@ -27,17 +27,23 @@ print(first, second)
 #first = swap_edges(first, first[32], first[2])
 #print([item for item, count in Counter(first).items() if count > 1])
 #print("-----------------------------------")
-edges_cost = create_edges_cost_matrix(first, second, distance_matrix)
 #
 #np.savetxt("test2.txt", edges_cost)
 #np.savetxt("distance_matrix.txt", distance_matrix)
 
+first, second = random_cycles(distance_matrix)
+
 vertices_cost = create_vertices_cost_matrix(first, second, distance_matrix)
+edges_cost = create_edges_cost_matrix(first, second, distance_matrix)
 
+#print(check_length(first, distance_matrix), check_length(second, distance_matrix))
+
+
+first1, second1 = steepest_vertices(np.copy(first), np.copy(second), vertices_cost, distance_matrix)
+
+first2, second2 = steepest_edges(np.copy(first), np.copy(second), vertices_cost, edges_cost, distance_matrix)
+print("-------------------")
 print(check_length(first, distance_matrix), check_length(second, distance_matrix))
-
-#first, second = steepest_vertices(first, second, vertices_cost, distance_matrix)
-
-first, second = steepest_edges(first, second, vertices_cost, edges_cost, distance_matrix)
-print(check_length(first, distance_matrix), check_length(second, distance_matrix))
-plot(first, second, graph, "Steepest_vertices")
+print(check_length(first1, distance_matrix), check_length(second1, distance_matrix))
+print(check_length(first2, distance_matrix), check_length(second2, distance_matrix))
+plot(first2, second2, graph, "Steepest_edges")
