@@ -1,6 +1,50 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def swap_vertices(
+    first_cycle: np.ndarray,
+    second_cycle: np.ndarray,
+    first_vertex: int,
+    second_vertex: int,
+):
+    """Function swaps first_vertex from first cycle with second_vertex from second_cycle
+
+    :param first_cycle: Numpy array representing first cycle
+    :param second_cycle: Numpy array representing second cycle
+    :param first_vertex: Vertex that is being replaced from first cycle
+    :param second_vertex: Vertex that is being replaced from second cycle
+    :return: Two cycles with replaced wertices
+    """
+    (
+        first_cycle[np.where(first_cycle == first_vertex)],
+        second_cycle[np.where(second_cycle == second_vertex)],
+    ) = (second_vertex, first_vertex)
+    return first_cycle, second_cycle
+
+
+def swap_edges(cycle: np.ndarray, first_vertex: int, second_vertex: int):
+    """Function switches two edges in cyce. First edge begins in first_vertex and second edge begins in second_vertex.
+
+    :param cycle: Numpy array representing cycle in which edges are being swapped
+    :param first_vertex: Beginning of first edge
+    :param second_vertex: Beginning of second edge
+    :return: Numpy array representing cycle witch swapped edges
+    """
+    first_index = np.where(cycle == first_vertex)[0][0]
+    second_index = np.where(cycle == second_vertex)[0][0]
+    if first_index > second_index:
+        second_index, first_index = first_index, second_index
+    
+
+    return np.concatenate(
+        (
+            cycle[: first_index + 1],
+            cycle[second_index:first_index:-1],
+            cycle[second_index + 1 :],
+        )
+    )
+
+
 
 def load_file(filename: str):
     f = open(filename, "r")
@@ -38,7 +82,7 @@ def change_of_length(
     )
 
 
-def plot(first_cycle: np.ndarray, second_cycle: np.ndarray, graph: np.ndarray):
+def plot(first_cycle: np.ndarray, second_cycle: np.ndarray, graph: np.ndarray, title):
     x1 = []
     y1 = []
     x2 = []
@@ -53,5 +97,5 @@ def plot(first_cycle: np.ndarray, second_cycle: np.ndarray, graph: np.ndarray):
 
     plt.plot(x1, y1, "bo", linestyle="--")
     plt.plot(x2, y2, "o", linestyle="--", color="red")
-    plt.title("Greedy cycle")
+    plt.title(title)
     plt.show()

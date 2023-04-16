@@ -46,3 +46,21 @@ def create_greedy_cycles(distance_matrix: np.ndarray):
             )
             first = not first
     return first_cycle, second_cycle
+
+
+def random_cycles(distance_matrix: np.ndarray):
+    first_cycle=[]
+    second_cycle = []
+    free_vertices = [x for x in range(distance_matrix.shape[0])]
+    random.shuffle(free_vertices)
+    first = True
+    while len(free_vertices) > 0:
+        if first:
+            first_cycle.append(free_vertices.pop(0))
+            first = not first
+        else:
+            second_cycle.append(free_vertices.pop(0))
+            first = not first
+    first_cycle.append(first_cycle[0])
+    second_cycle.append(second_cycle[0])
+    return np.array(first_cycle), np.array(second_cycle)
