@@ -41,9 +41,6 @@ def create_edges_cost_matrix(
     edges_cost = np.ones_like(distance_matrix)
     for x in range(first_cycle.shape[0] - 2):
         for y in range(x + 1, first_cycle.shape[0] - 1):
-            if first_cycle[y] == first_cycle[x]: 
-                print(x, y)
-                print(first_cycle)
             if first_cycle[y] < first_cycle[x]:
                 edges_cost[
                     first_cycle[y], first_cycle[x]
@@ -65,8 +62,8 @@ def create_edges_cost_matrix(
                     distance_matrix,
                 )
 
-    for y in range(second_cycle.shape[0] - 2):
-        for x in range(x + 1, second_cycle.shape[0] - 1):
+    for x in range(second_cycle.shape[0] - 2):
+        for y in range(x + 1, second_cycle.shape[0] - 1):
             if second_cycle[y] < second_cycle[x]:
                 edges_cost[
                     second_cycle[y], second_cycle[x]

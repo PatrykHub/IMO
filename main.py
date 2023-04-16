@@ -31,8 +31,6 @@ print(first, second)
 #np.savetxt("test2.txt", edges_cost)
 #np.savetxt("distance_matrix.txt", distance_matrix)
 
-first, second = random_cycles(distance_matrix)
-
 vertices_cost = create_vertices_cost_matrix(first, second, distance_matrix)
 edges_cost = create_edges_cost_matrix(first, second, distance_matrix)
 
@@ -46,4 +44,7 @@ print("-------------------")
 print(check_length(first, distance_matrix), check_length(second, distance_matrix))
 print(check_length(first1, distance_matrix), check_length(second1, distance_matrix))
 print(check_length(first2, distance_matrix), check_length(second2, distance_matrix))
+
+plot(first, second, graph, "Random")
+plot(first1, second1, graph, "Steepest_vertices")
 plot(first2, second2, graph, "Steepest_edges")
