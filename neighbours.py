@@ -288,3 +288,145 @@ def steepest_edges(
     np.savetxt("edges.txt", edges_cost)
     return first_cycle, second_cycle
 
+def greedy_vertices(
+    first_cycle: np.ndarray,
+    second_cycle: np.ndarray,
+    vertices_cost: np.ndarray,
+    distance_matrix: np.ndarray,
+):
+    while True:
+        min = 0
+        indices = (0, 0)
+        for x, y in np.ndindex(vertices_cost.shape):
+            if vertices_cost[x, y] < min:
+                indices = (x, y)
+                break
+        if vertices_cost[indices[0], indices[1]] >= 0:
+           break
+        else:
+            if indices[0] in first_cycle:
+                first_cycle, second_cycle = swap_vertices(
+                    first_cycle, second_cycle, indices[0], indices[1]
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices[0],
+                    second_cycle,
+                    first_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices[1],
+                    first_cycle,
+                    second_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+            else:
+                first_cycle, second_cycle = swap_vertices(
+                    first_cycle, second_cycle, indices[1], indices[0]
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices[1],
+                    second_cycle,
+                    first_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices[0],
+                    first_cycle,
+                    second_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+    return first_cycle, second_cycle
+
+def greedy_edges(
+    first_cycle: np.ndarray,
+    second_cycle: np.ndarray,
+    vertices_cost: np.ndarray,
+    edges_cost: np.ndarray,
+    distance_matrix: np.ndarray,
+):
+    prev_indices = (-1, -1)
+    while True:
+        min = 0
+        indices_vertices = (0, 0)
+        indices_edges = (0, 0)
+        for x, y in np.ndindex(vertices_cost.shape):
+            if vertices_cost[x, y] < min:
+                indices_vertices = (x, y)
+                break
+        if min >= 0:
+           indices_edges = divmod(edges_cost.argmin(), edges_cost.shape[1])
+        if (
+            vertices_cost[indices_vertices[0], indices_vertices[1]] >= 0
+            and edges_cost[indices_edges[0], indices_edges[1]] >= 0
+        ):
+            break
+        elif (
+            vertices_cost[indices_vertices[0], indices_vertices[1]]
+            < edges_cost[indices_edges[0], indices_edges[1]]
+        ):
+            if indices_vertices[0] in first_cycle:
+                first_cycle, second_cycle = swap_vertices(
+                    first_cycle, second_cycle, indices_vertices[0], indices_vertices[1]
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[0],
+                    second_cycle,
+                    first_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[1],
+                    first_cycle,
+                    second_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+            else:
+                first_cycle, second_cycle = swap_vertices(
+                    first_cycle, second_cycle, indices_vertices[1], indices_vertices[0]
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[1],
+                    second_cycle,
+                    first_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+                vertices_cost = update_vertices_cost_matrix(
+                    indices_vertices[0],
+                    first_cycle,
+                    second_cycle,
+                    vertices_cost,
+                    distance_matrix,
+                )
+        else:
+            #print("Jestem!")
+            #print(first_cycle)
+            if indices_edges == prev_indices: break
+            prev_indices = indices_edges
+            #print(indices_edges)
+            #print(edges_cost[indices_edges[0], indices_edges[1]])
+            #print(check_length(first_cycle, distance_matrix), check_length(second_cycle, distance_matrix))
+            if indices_edges[0] in first_cycle:
+                first_cycle = swap_edges(
+                    first_cycle, indices_edges[0], indices_edges[1]
+                )
+            else:
+                second_cycle = swap_edges(
+                    second_cycle, indices_edges[0], indices_edges[1]
+                )
+            vertices_cost = create_vertices_cost_matrix(
+                first_cycle, second_cycle, distance_matrix
+            )
+            #print(check_length(first_cycle, distance_matrix), check_length(second_cycle, distance_matrix))
+        edges_cost = create_edges_cost_matrix(
+            first_cycle, second_cycle, distance_matrix
+        )
+    np.savetxt("edges.txt", edges_cost)
+    return first_cycle, second_cycle
